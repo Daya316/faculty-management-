@@ -1,47 +1,97 @@
-## Entity Relationship Diagram
-
-The Faculty Management System consists of four main entities: **Department, Faculty, Course, and Attendance**.
+## UML Class Diagram
 
 ```mermaid
-erDiagram
-    DEPARTMENT ||--o{ FACULTY : "has"
-    FACULTY ||--o{ ATTENDANCE : "has"
-    FACULTY ||--o{ COURSE : "teaches"
-    COURSE ||--o{ ATTENDANCE : "for"
+classDiagram
 
-    DEPARTMENT {
-        int department_id PK
-        string department_name
+    class Person {
+        <<abstract>>
+        #int id
+        #string name
+        #int age
+
+        +Person()
+        +Person(int id, string name, int age)
+        +virtual display()*
+        +getId() int
     }
 
-    FACULTY {
-        int faculty_id PK
-        string name
-        string email
-        string phone
-        string designation
-        int department_id FK
+    class Faculty {
+        -string department
+        -double salary
+        -int attendanceDays
+
+        +Faculty()
+        +Faculty(int id, string name, int age, string department, double salary, int attendanceDays)
+        +display()
+        +getName() string
+        +getAge() int
+        +getDepartment() string
+        +getSalary() double
+        +getAttendance() int
+        +markAttendance()
     }
 
-    COURSE {
-        int course_id PK
-        string course_name
-        string course_code
-        int faculty_id FK
+    class FacultyManager {
+        -vector~Faculty~ faculties
+
+        +addFaculty()
+        +displayAll()
+        +searchFaculty()
+        +updateFaculty()
+        +deleteFaculty()
+        +searchByDepartment()
+        +markFacultyAttendance()
+        +attendanceReport()
+        +saveToFile()
+        +loadFromFile()
     }
 
-    ATTENDANCE {
-        int attendance_id PK
-        int faculty_id FK
-        int course_id FK
-        date attendance_date
-        string status
-    }
+    Person <|-- Faculty
+    FacultyManager "1" o-- "0..*" Faculty : manages
 ```
 
-### Entity Relationships
+### Class Relationships
 
-* **Department → Faculty:** A department can have multiple faculty members, while each faculty member belongs to one department.
-* **Faculty → Course:** A faculty member can teach multiple courses.
-* **Faculty → Attendance:** A faculty member can have multiple attendance records.
-* **Course → Attendance:** Each course can have multiple attendance records.
+**1. Person → Faculty**
+
+`Faculty` inherits from `Person`.
+
+```text
+Person
+   ▲
+   │ inherits
+   │
+Faculty
+```
+
+The common attributes `id`, `name`, and `age` are defined in `Person` and inherited by `Faculty`.
+
+**2. FacultyManager → Faculty**
+
+`FacultyManager` contains a `vector<Faculty>`:
+
+```cpp
+vector<Faculty> faculties;
+```
+
+Therefore, one `FacultyManager` can manage **zero or more Faculty objects**.
+
+**3. Person is an Abstract Class**
+
+`Person` contains the pure virtual function:
+
+```cpp
+virtual void display() = 0;
+```
+
+Therefore, `Person` is an **abstract base class**, and `Faculty` provides its implementation of `display()`.
+
+### OOP Concepts Used
+
+| OOP Concept                 | Implementation                              |
+| --------------------------- | ------------------------------------------- |
+| **Inheritance**             | `Faculty : public Person`                   |
+| **Abstraction**             | `Person` has pure virtual `display()`       |
+| **Encapsulation**           | Private/protected data members              |
+| **Polymorphism**            | Virtual `display()` overridden by `Faculty` |
+| **Composition/Aggregation** | `FacultyManager` manages `vector<Faculty>`  |
